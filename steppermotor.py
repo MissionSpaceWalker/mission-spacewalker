@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from RpiMotorLib import RpiMotorLib
 import time
+from RpiMotorLib.RpiMotorLib import BYJMotor, A4988Nema, A3967EasyNema
 
 ################################
 # RPi and Motor Pre-allocations
@@ -12,7 +13,7 @@ step = 23 # Step GPIO Pin
 EN_pin = 24 # enable pin (LOW to enable)
 
 # Declare a instance of class pass GPIO pins numbers and the motor type
-mymotortest = RpiMotorLib.A4988Nema(direction, step, (21,21,21), "DRV8825")
+mymotortest = RpiMotorLib.A4988Nema(direction, step, (-1,-1,-1), "DRV8825")
 GPIO.setup(EN_pin,GPIO.OUT) # set enable pin as output
 
 ###########################
