@@ -12,14 +12,16 @@ mission spacewalker explores autonomous life-support systems for long-duration s
 
 ## software overview
 
-this repo includes:
+the codebase is organized into the following modules:
 
-- `/main.py`: main system loop
-- `/sensors/`: modular sensor drivers
-- `/actuators/`: motor and solenoid interfaces
-- `/utils/`: logging, data encoding, safety checks
-- `/config/`: system constants and gpio maps
-- `/gui/`: optional gui for real-time telemetry
+### core application
+
+- `main.py` - primary entry point and system control loop
+
+### hardware interfaces
+
+- `sensors/` - pressure, flow, and camera sensor drivers
+- `actuators/` - stepper motor and solenoid valve control
 
 ---
 
