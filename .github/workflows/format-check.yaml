@@ -1,0 +1,31 @@
+name: Check Python Formatting
+
+on:
+  pull_request:
+    paths:
+      - '**.py'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install formatters and linters
+      run: pip install black isort ruff
+
+    - name: Run black check
+      run: black --check --diff .
+
+    - name: Run isort check
+      run: isort . --check-only --diff
+
+    - name: Run ruff check
+      run: ruff check .
