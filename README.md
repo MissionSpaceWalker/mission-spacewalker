@@ -74,3 +74,22 @@ This script will:
 - install Python dependencies
 - run the main control loop
 
+# Developers
+
+## formatting & linting
+This project uses black, isort, and ruff to enforce consistent formatting and code quality across all Python files.
+
+The formatting check will run automatically on every pull request.
+If it fails, run the following command to auto-format your code:
+
+```bash
+Copy
+Edit
+./format.sh
+```
+
+This script will:
+- format all Python files with black
+- sort imports using isort
+- apply lint fixes with ruff
+

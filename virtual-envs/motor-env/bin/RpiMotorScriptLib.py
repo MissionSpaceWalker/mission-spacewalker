@@ -23,15 +23,24 @@ __url__ = "https://github.com/gavinlyonsrepo/RpiMotorLib"
 
 def process_cmd_arguments():
     """Function for processing command line arguments."""
-    parser = argparse.ArgumentParser(description='RpiMotorLib : Raspberry Pi Motor Library \
+    parser = argparse.ArgumentParser(
+        description="RpiMotorLib : Raspberry Pi Motor Library \
      : A python 3 library for various motors and servos \
      to connect to a raspberry pi. \
      RpiMotorScript:Lib a script to display  \
     the version and help for rpiMotorlib.  \
-    Written by ' + __author__ + '.  The project Documentation is at ' + __url__)
+    Written by "
+        + __author__
+        + ".  The project Documentation is at "
+        + __url__
+    )
     parser.add_argument(
-        '-v', help='Print rpiMotorlib version and quit',
-        default=False, dest='version', action='store_true')
+        "-v",
+        help="Print rpiMotorlib version and quit",
+        default=False,
+        dest="version",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     return args
@@ -40,12 +49,12 @@ def process_cmd_arguments():
 def main(args):
     """main function"""
     if len(sys.argv) == 1:
-       print("usage: RpiMotorScriptLib.py [-h] [-v]")
+        print("usage: RpiMotorScriptLib.py [-h] [-v]")
 
     # display version
     if args.version:
         print("rpiMotorlib " + __version__)
-        
+
     print("BYE")
 
 

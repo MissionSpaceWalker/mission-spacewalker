@@ -15,37 +15,42 @@ import time
 from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
 from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
 from sensirion_i2c_sf06_lf.device import Sf06LfDevice
-from sensirion_i2c_sf06_lf.commands import (InvFlowScaleFactors)
+from sensirion_i2c_sf06_lf.commands import InvFlowScaleFactors
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--i2c-port', '-p', default='/dev/i2c-1')
+parser.add_argument("--i2c-port", "-p", default="/dev/i2c-1")
 args = parser.parse_args()
 
 with LinuxI2cTransceiver(args.i2c_port) as i2c_transceiver:
-    channel = I2cChannel(I2cConnection(i2c_transceiver),
-                         slave_address=0x08,
-                         crc=CrcCalculator(8, 0x31, 0xff, 0x0))
+    channel = I2cChannel(
+        I2cConnection(i2c_transceiver),
+        slave_address=0x08,
+        crc=CrcCalculator(8, 0x31, 0xFF, 0x0),
+    )
     sensor = Sf06LfDevice(channel)
     try:
         sensor.stop_continuous_measurement()
         time.sleep(0.1)
     except BaseException:
         ...
-    (product_identifier, serial_number
-     ) = sensor.read_product_identifier()
-    print(f"product_identifier: {product_identifier}; "
-          f"serial_number: {serial_number}; "
-          )
+    (product_identifier, serial_number) = sensor.read_product_identifier()
+    print(
+        f"product_identifier: {product_identifier}; "
+        f"serial_number: {serial_number}; "
+    )
     sensor.start_h2o_continuous_measurement()
     for i in range(500):
         try:
             time.sleep(0.02)
-            (a_flow, a_temperature, a_signaling_flags) = sensor.read_measurement_data(InvFlowScaleFactors.SLF3S_0600F)
-            print(f"a_flow: {a_flow}; "
-                  f"a_temperature: {a_temperature}; "
-                  f"a_signaling_flags: {a_signaling_flags}; "
-                  )
+            (a_flow, a_temperature, a_signaling_flags) = sensor.read_measurement_data(
+                InvFlowScaleFactors.SLF3S_0600F
+            )
+            print(
+                f"a_flow: {a_flow}; "
+                f"a_temperature: {a_temperature}; "
+                f"a_signaling_flags: {a_signaling_flags}; "
+            )
         except BaseException:
             continue
     sensor.stop_continuous_measurement()
