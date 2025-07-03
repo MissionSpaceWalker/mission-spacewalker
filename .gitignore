@@ -79,7 +79,10 @@ dmypy.json
 .pyre/
 
 # IDEs
-.vscode/
+# allow .vscode/settings.json to be tracked
+!.vscode/settings.json
+# but ignore other .vscode files
+.vscode/*
 .idea/
 *.sublime-project
 *.sublime-workspace

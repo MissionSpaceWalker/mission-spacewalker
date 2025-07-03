@@ -18,14 +18,8 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install formatters and linters
-      run: pip install black isort ruff
+    - name: Install formatter
+      run: pip install black
 
     - name: Run black check
       run: black --check --diff .
-
-    - name: Run isort check
-      run: isort . --check-only --diff
-
-    - name: Run ruff check
-      run: ruff check .

@@ -1,5 +1,6 @@
-from RPi import GPIO  # type: ignore
 from time import sleep
+
+from RPi import GPIO  # type: ignore
 
 clk = 17
 dt = 23

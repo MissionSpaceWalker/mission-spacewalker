@@ -1,5 +1,6 @@
-import pigpio
 import time
+
+import pigpio
 
 # “BCM” means we address pins by the Broadcom chip numbers, e.g. 18.
 # so if the wires come out or we cant to wire it differently on a different board/ soldering - this will need to change

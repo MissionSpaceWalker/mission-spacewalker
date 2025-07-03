@@ -35,13 +35,12 @@ Implementation Notes
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_LPS2X.git"
 from time import sleep
-from digitalio import DigitalInOut
-
 
 import adafruit_bus_device.i2c_device as i2cdevice
 from adafruit_register.i2c_bit import RWBit
 from adafruit_register.i2c_bits import ROBits, RWBits
 from adafruit_register.i2c_struct import ROUnaryStruct
+from digitalio import DigitalInOut
 from micropython import const
 
 try:

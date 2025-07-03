@@ -12,11 +12,11 @@
 
 import argparse
 import time
-from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
-from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
-from sensirion_i2c_sf06_lf.device import Sf06LfDevice
-from sensirion_i2c_sf06_lf.commands import InvFlowScaleFactors
 
+from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
+from sensirion_i2c_driver import CrcCalculator, I2cConnection, LinuxI2cTransceiver
+from sensirion_i2c_sf06_lf.commands import InvFlowScaleFactors
+from sensirion_i2c_sf06_lf.device import Sf06LfDevice
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--i2c-port", "-p", default="/dev/i2c-1")

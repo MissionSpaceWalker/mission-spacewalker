@@ -1,48 +1,18 @@
 # mission spacewalker — capillary-driven bioreactor system
 
-Welcome to the official code repository for **mission spacewalker**, University of Alberta's 2024-2025 CAN-RGX project. This system supports the automated cultivation of cyanobacteria under microgravity using a passive, capillary-driven nutrient and CO₂ injection system controlled by a Raspberry Pi.
+welcome to the official code repository for **mission spacewalker**, University of Alberta's 2024-2025 CAN-RGX project. this system supports the automated cultivation of cyanobacteria under microgravity using a passive, capillary-driven nutrient and CO₂ injection system controlled by a Raspberry Pi.
 
 ---
 
 ## project overview
 
-mission spacewalker explores autonomous life-support systems for long-duration spaceflight by using cyanobacteria to produce oxygen and biomass. This repository contains the software that interfaces with the sensors, actuators, and telemetry system deployed in the bioreactor during parabolic flight.
-
----
-
-## system architecture
-
-The system includes:
-
-- cyanobacteria bioreactor
-- capillary-driven nutrient delivery
-- CO₂ injection system
-- dual raspberry pi camera monitoring
-- raspberry pi control unit
-- environmental sensors: pressure, flow rate
-- actuators: solenoid valve, stepper motor, rotary encoder
-- laptop gui (telemetry + ssh)
-
----
-
-## hardware overview
-
-| component               | function                          |
-|------------------------|-----------------------------------|
-| raspberry pi 4         | central controller (python-based) |
-| stepper motor + driver | activates gas release             |
-| solenoid valve         | controls nutrient delivery        |
-| pressure sensor        | monitors internal chamber pressure|
-| flow sensor            | measures bg-11 nutrient transfer  |
-| dual cameras           | visual confirmation and backup    |
-
-A complete electrical schematic is available in the `docs/` folder.
+mission spacewalker explores autonomous life-support systems for long-duration spaceflight by using cyanobacteria to produce oxygen and biomass. this repository contains the software that interfaces with the sensors, actuators, and telemetry system deployed in the bioreactor during parabolic flight.
 
 ---
 
 ## software overview
 
-This repo includes:
+this repo includes:
 
 - `/main.py`: main system loop
 - `/sensors/`: modular sensor drivers
@@ -63,32 +33,32 @@ This repo includes:
 **to install and run the system:**
 
 ```bash
-git clone https://github.com/mission-spacewalker/bioreactor.git
-cd bioreactor
+git clone https://github.com/MissionSpaceWalker/mission-spacewalker.git
+cd mission-spacewalker
 chmod +x run.sh
 ./run.sh
 ```
 
-This script will:
+this script will:
 - create a virtual environment
 - install Python dependencies
 - run the main control loop
 
-# Developers
+# developers
 
-## formatting & linting
-This project uses black, isort, and ruff to enforce consistent formatting and code quality across all Python files.
+## code quality
 
-The formatting check will run automatically on every pull request.
-If it fails, run the following command to auto-format your code:
+### formatting
+this project uses black to enforce consistent formatting across all Python files.
+
+the formatting check will run automatically on every pull request.
+if it fails, run the following command to auto-format your code:
 
 ```bash
-Copy
-Edit
 ./format.sh
 ```
 
-This script will:
+this script will:
 - format all Python files with black
 - sort imports using isort
 - apply lint fixes with ruff

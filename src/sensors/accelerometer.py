@@ -1,7 +1,7 @@
-import analogio
-import board
 import time
 
+import analogio
+import board
 
 # Create analog inputs for each ADXL335 axis.
 x_axis = analogio.AnalogIn(board.A1)
