@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "[+] Formatting Python files with black..."
+echo "formatting python files with black..."
 black .
 
-echo "[✓] Formatting complete."
+echo "formatting complete."

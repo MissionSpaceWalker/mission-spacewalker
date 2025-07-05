@@ -86,11 +86,10 @@ dummy mode is ideal for debugging system logic, logging, or ui components before
 
 ## code quality
 
-### formatting
 this project uses black to enforce consistent formatting across all Python files.
 
 the formatting check will run automatically on every pull request.
-if it fails, run the following command to auto-format your code:
+if it fails, run the following command locally to auto-format your code, then commit and push to trigger the github action again:
 
 ```bash
 ./format.sh
@@ -101,3 +100,27 @@ this script will:
 - sort imports using isort
 - apply lint fixes with ruff
 
+## committing
+
+for convenience, you can use the `commit.sh` script to automatically format your code and commit in one step:
+
+```bash
+./commit.sh "your commit message"
+```
+
+this script will:
+- run the formatter (same as `format.sh`)
+- stage all changes
+- commit with your message
+
+### amending commits
+
+if you need to amend your previous commit, you can use:
+
+```bash
+./commit.sh --amend "updated commit message"
+# or
+./commit.sh -a "updated commit message"
+```
+
+both `--amend` and `-a` flags will amend your previous commit after formatting.
