@@ -1,26 +1,37 @@
 #!/bin/bash
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # exit on error
 
-if [ -d "venv" ]; then
-  read -p "[~] Virtual environment already exists. Recreate it? [y/N]: " confirm
-  if [[ "$confirm" =~ ^[Yy]$ ]]; then
-    echo "[!] Removing existing virtual environment..."
-    rm -rf venv
-  else
-    echo "[>] Reusing existing virtual environment..."
-  fi
+USE_DUMMY=false
+
+if [[ "$1" == "--dummy" ]]; then
+  USE_DUMMY=true
+elif [[ -n "$1" ]]; then
+  echo "[!] unknown option: $1"
+  echo "usage: ./run.sh [--dummy]"
+  exit 1
 fi
 
-echo "[+] Creating virtual environment..."
-python3 -m venv venv
+# setup virtual environment
+if [ ! -d "venv" ]; then
+  echo "creating virtual environment..."
+  python3 -m venv venv
+fi
 
-echo "[+] Activating virtual environment..."
+echo "activating virtual environment..."
 source venv/bin/activate
 
-echo "[+] Installing requirements..."
-pip install --upgrade pip
-pip install -r requirements.txt
+echo "installing requirements..."
+pip install --upgrade pip --quiet || echo "pip upgrade failed"
+pip install -r requirements.txt --quiet || echo "requirements install failed"
 
-echo "[+] Running main system script..."
-python3 src/main.py
+clear
+
+# run the main system script
+echo "running main system..."
+if $USE_DUMMY; then
+  echo "running in DUMMY mode (no Raspberry Pi hardware required)"
+  USE_DUMMY_SENSORS=true python3 src/mswua.py
+else
+  python3 src/mswua.py
+fi

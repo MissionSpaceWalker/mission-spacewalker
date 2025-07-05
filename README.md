@@ -46,6 +46,42 @@ this script will:
 - install Python dependencies
 - run the main control loop
 
+## running the program
+
+you can run the mission spacewalker system in two modes:
+
+### real sensor mode (default)
+
+this mode interfaces with the actual hardware connected to the raspberry pi.
+
+```bash
+./run.sh
+```
+
+this will:
+
+- activate the virtual environment
+- install all required dependencies (if not already installed)
+- run the main control loop with real sensor input
+
+note: root access may be required for gpio access. if needed, run with `sudo ./run.sh`
+
+### dummy mode (for development without hardware)
+
+if you're develioping on a non-raspberry pi system or testing without access to the hardware, use dummy mode:
+
+```bash
+./run.sh --dummy
+```
+
+this will:
+
+- simulate flow sensor readings without requiring physical hardware
+- use the same system logic and interfaces
+- allow testing and development in a fully offline environment
+
+dummy mode is ideal for debugging system logic, logging, or ui components before deploying to flight hardware.
+
 # developers
 
 ## code quality
