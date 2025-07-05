@@ -7,18 +7,18 @@ USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
 if USE_DUMMY:
     from sensors.dummy.dummy_flow_sensor import FlowSensor
     from sensors.dummy.dummy_pressure_sensor import PressureSensor
-    from sensors.dummy.dummy_accelerometer import AccelerometerSensor
+    from sensors.dummy.dummy_accelerometer import Accelerometer
 else:
     from sensors.real.flow_sensor import FlowSensor
     from sensors.real.pressure_sensor import PressureSensor
-    from sensors.real.accelerometer import AccelerometerSensor
+    from sensors.real.accelerometer import Accelerometer
 
 
 def main():
     sensors = [
         FlowSensor(),
         PressureSensor(),
-        AccelerometerSensor(),
+        Accelerometer(),
     ]
 
     try:

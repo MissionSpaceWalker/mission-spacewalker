@@ -1,73 +1,74 @@
 # lps22_sensor.py
 
-from base_sensor import BaseSensor
+from base_sensor import BaseSensor, SensorType
 import board
-import busio
-from adafruit_lps2x import LPS22
+import adafruit_lps2x
 
 
 class PressureSensor(BaseSensor):
     def __init__(self, i2c_port="/dev/i2c-1"):
-        super().__init__(i2c_port)
+        super().__init__(sensor_type=SensorType.I2C, i2c_port=i2c_port)
         self._i2c = None
         self._sensor = None
         self._connected = False
 
     def connect(self):
-        """Establish I2C connection and initialize sensor instance"""
+        """establish i2c connection and initialize sensor"""
         if self._connected:
-            print("sensor already connected.")
+            print("lps22 pressure sensor already connected")
             return
 
-        self._i2c = busio.I2C(board.SCL, board.SDA)
-        while not self._i2c.try_lock():
-            pass  # wait for I2C bus lock
-        self._i2c.unlock()
+        # use board.I2C() instead of busio.I2C()
+        self._i2c = board.I2C()
 
-        self._sensor = LPS22(self._i2c)
+        # create LPS22 sensor instance
+        self._sensor = adafruit_lps2x.LPS22(self._i2c)
         self._connected = True
-        print("sensor connected.")
+        print("lps22 pressure sensor connected")
 
     def disconnect(self):
-        """Power down and clean up the sensor"""
+        """disconnect and cleanup sensor resources"""
         if not self._connected:
-            print("sensor not connected.")
             return
 
-        try:
+        if self._measuring:
             self.stop()
-        except Exception:
-            pass
 
         self._sensor = None
         self._i2c = None
         self._connected = False
-        print("sensor disconnected.")
+        print("lps22 pressure sensor disconnected")
 
     def start(self):
-        """Starts measurement (configures default rate)"""
+        """start pressure measurement"""
         if not self._connected:
-            raise RuntimeError("sensor not connected. call connect() first.")
+            raise RuntimeError("sensor not connected - call connect() first")
 
-        self._sensor.data_rate = self._sensor.data_rate  # trigger a config
+        # no need to configure data rate - sensor is ready to read
         self._measuring = True
 
     def stop(self):
-        """Stops measurement by setting shutdown mode"""
-        if not self._connected:
-            return
-
-        self._sensor.data_rate = 0  # shutdown mode
-        self._measuring = False
+        """stop pressure measurement"""
+        if self._connected and self._measuring:
+            self._measuring = False
 
     def read(self):
-        """Reads current pressure and temperature"""
-        if not self._measuring:
-            raise RuntimeError("sensor is not measuring. call ctart() first.")
+        """read pressure and temperature data"""
         if not self._connected:
-            raise RuntimeError("sensor not connected. call connect() first.")
+            raise RuntimeError("sensor not connected - call connect() first")
+        if not self._measuring:
+            raise RuntimeError("sensor not measuring - call start() first")
 
         return {
-            "pressure_hPa": round(self._sensor.pressure, 2),
-            "temperature_C": round(self._sensor.temperature, 2),
+            "pressure_hpa": round(self._sensor.pressure, 2),
+            "temperature_c": round(self._sensor.temperature, 2),
         }
+
+    def __enter__(self):
+        """context manager entry"""
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """context manager exit"""
+        self.disconnect()
