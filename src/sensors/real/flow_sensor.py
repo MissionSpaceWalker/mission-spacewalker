@@ -98,37 +98,3 @@ class FlowSensor(BaseSensor):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--i2c-port", "-p", default="/dev/i2c-1")
-    parser.add_argument("--samples", "-n", type=int, default=500)
-    args = parser.parse_args()
-
-    sensor = FlowSensor(args.i2c_port)
-
-    with sensor:
-        # get sensor info
-        info = sensor.get_info()
-        print(
-            f"product_id: {info['product_id']}; serial_number: {info['serial_number']};"
-        )
-
-        # start measurement
-        sensor.start()
-
-        # collect data
-        for i in range(args.samples):
-            try:
-                time.sleep(0.02)
-                data = sensor.read()
-                print(
-                    f"flow: {data['flow']}; temperature: {data['temperature']}; flags: {data['flags']};"
-                )
-            except BaseException:
-                continue
-
-
-if __name__ == "__main__":
-    main()

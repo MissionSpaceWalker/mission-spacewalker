@@ -5,14 +5,20 @@ import time
 USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
 
 if USE_DUMMY:
-    from sensors.dummy_flow_sensor import FlowSensor
+    from sensors.dummy.dummy_flow_sensor import FlowSensor
+    from sensors.dummy.dummy_pressure_sensor import PressureSensor
+    from sensors.dummy.dummy_accelerometer import AccelerometerSensor
 else:
-    from sensors.flow_sensor import FlowSensor
+    from sensors.real.flow_sensor import FlowSensor
+    from sensors.real.pressure_sensor import PressureSensor
+    from sensors.real.accelerometer import AccelerometerSensor
 
 
 def main():
     sensors = [
         FlowSensor(),
+        PressureSensor(),
+        AccelerometerSensor(),
     ]
 
     try:
@@ -26,9 +32,9 @@ def main():
             for sensor in sensors:
                 try:
                     data = sensor.read()
-                    print(
-                        f"flow: {data['flow']:.2f}; temperature: {data['temperature']:.2f}; flags: {data['flags']};"
-                    )
+                    # print the sensor class name, and whatever data it returns
+                    sensor_name = sensor.__class__.__name__
+                    print(f"{sensor_name} data: {data}")
                 except Exception as e:
                     print(f"error reading sensor: {e}")
 
