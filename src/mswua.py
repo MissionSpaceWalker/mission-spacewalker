@@ -2,7 +2,8 @@ import os
 import time
 from contextlib import ExitStack
 
-USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
+# USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
+USE_DUMMY = True
 
 if USE_DUMMY:
     from sensors.dummy.dummy_flow_sensor import FlowSensor
@@ -17,8 +18,8 @@ else:
 def main():
     sensor_classes = [
         FlowSensor,
-        PressureSensor,
-        Accelerometer,
+        # PressureSensor,
+        # Accelerometer,
     ]
 
     try:
