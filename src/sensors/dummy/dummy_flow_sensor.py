@@ -29,16 +29,14 @@ class FlowSensor(BaseSensor):
         self._current_flags = 0
 
     def connect(self):
-        """connect to dummy sensor"""
-        print(f"connecting to dummy sensor on {self.i2c_port}")
+        print("[DummyFlowSensor] Initializing dummy flow sensor")
         time.sleep(0.1)  # simulate connection time
         self._connected = True
 
     def disconnect(self):
-        """disconnect from dummy sensor"""
+        print("[DummyFlowSensor] Disconnecting dummy flow sensor")
         if self._measuring:
             self.stop()
-        print("disconnecting from dummy sensor")
         self._connected = False
 
     def start(self):
@@ -46,7 +44,7 @@ class FlowSensor(BaseSensor):
         if not self._connected:
             raise RuntimeError("sensor not connected")
 
-        print("starting dummy flow measurement")
+        print("[DummySlowSensor] Starting dummy flow measurement")
         self._measuring = True
         self._stop_thread = False
 
@@ -58,7 +56,7 @@ class FlowSensor(BaseSensor):
     def stop(self):
         """stop dummy measurement"""
         if self._measuring:
-            print("stopping dummy flow measurement")
+            print("[DummyFlowSensor] Stopping dummy flow measurement")
             self._measuring = False
             self._stop_thread = True
             if self._thread:

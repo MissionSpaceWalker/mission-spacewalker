@@ -1,7 +1,7 @@
 import os
 import time
+from contextlib import ExitStack
 
-# Conditionally import the dummy or real flow sensor
 USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
 
 if USE_DUMMY:
@@ -15,36 +15,40 @@ else:
 
 
 def main():
-    sensors = [
-        FlowSensor(),
-        PressureSensor(),
-        Accelerometer(),
+    sensor_classes = [
+        FlowSensor,
+        PressureSensor,
+        Accelerometer,
     ]
 
     try:
         print("starting all sensors...")
-        for sensor in sensors:
-            sensor.connect()
-            sensor.start()
 
-        print("all sensors started successfully.")
-        while True:
-            for sensor in sensors:
-                try:
-                    data = sensor.read()
-                    # print the sensor class name, and whatever data it returns
-                    sensor_name = sensor.__class__.__name__
-                    print(f"{sensor_name} data: {data}")
-                except Exception as e:
-                    print(f"error reading sensor: {e}")
+        # manages multiple context managers
+        with ExitStack() as stack:
+            # enter all sensor contexts and start them
+            sensors = []
+            for sensor_class in sensor_classes:
+                sensor = stack.enter_context(sensor_class())
+                sensor.start()
+                sensors.append(sensor)
 
-            time.sleep(0.5)  # read every 0.5 seconds
+            print("all sensors started successfully.")
+
+            while True:
+                for sensor in sensors:
+                    try:
+                        data = sensor.read()
+                        sensor_name = sensor.__class__.__name__
+                        print(f"{sensor_name} data: {data}")
+                    except Exception as e:
+                        print(f"error reading {sensor.__class__.__name__}: {e}")
+
+                time.sleep(0.5)  # read every 0.5 seconds
 
     except KeyboardInterrupt:
         print("stopping all sensors...")
-        for sensor in sensors:
-            sensor.stop()
-            sensor.disconnect()
+        # context managers will automatically handle disconnect()
         print("all sensors stopped.")
 
 
