@@ -1,0 +1,8 @@
+black
+pylint
+mypy
+
+# sensor dependencies
+adafruit-blinka
+adafruit-circuitpython-lps2x
+sensirion-i2c-sf06-lf

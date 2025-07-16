@@ -1,0 +1,99 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Raspberry Pi specific logs and artifacts
+*.log
+*.bak
+*.swp
+*.tmp
+
+# Data output
+data/
+logs/
+*.csv
+*.hdf5
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtualenv
+venv/
+ENV/
+env/
+.venv/
+env.bak/
+venv.bak/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pyright
+.pyright/
+
+# Pyre type checker
+.pyre/
+
+# IDEs
+# allow .vscode/settings.json to be tracked
+!.vscode/settings.json
+# but ignore other .vscode files
+.vscode/*
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# SSH
+*.pem
+*.pub
+*.key
+
+# System files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
