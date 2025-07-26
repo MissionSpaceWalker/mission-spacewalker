@@ -1,3 +1,42 @@
+import RPi.GPIO as GPIO
+from time import sleep
+
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)
+
+print("=== Relay Controller ===")
+print("Type 'on' to activate the relay.")
+print("Type 'off' to deactivate the relay.")
+print("Type 'exit' to quit.\n")
+
+try:
+    while True:
+        command = input("Enter command (on/off/exit): ").strip().lower()
+        
+        if command == "on":
+            GPIO.output(18, 0)  # LOW = ON for many relay modules
+            print("Relay ON")
+        elif command == "off":
+            GPIO.output(18, 1)  # HIGH = OFF
+            print("Relay OFF")
+        elif command == "exit":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid command. Please enter 'on', 'off', or 'exit'.")
+except KeyboardInterrupt:
+    print("\nInterrupted by user.")
+
+finally:
+    GPIO.output(18, 1)  # Turn relay off for safety
+    GPIO.cleanup()
+    print("GPIO cleaned up.")
+
+
+
+
+'''
 #Import all neccessary features to code.
 import RPi.GPIO as GPIO
 from time import sleep
@@ -22,3 +61,4 @@ while (True):
     GPIO.output(18, 0)
     #Wait 1 Seconds
     sleep(1)
+'''
