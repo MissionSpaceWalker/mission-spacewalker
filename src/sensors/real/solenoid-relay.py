@@ -33,9 +33,6 @@ finally:
     GPIO.cleanup()
     print("GPIO cleaned up.")
 
-
-
-
 '''
 #Import all neccessary features to code.
 import RPi.GPIO as GPIO
