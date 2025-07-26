@@ -2,17 +2,17 @@ import os
 import time
 from contextlib import ExitStack
 
-# USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
-USE_DUMMY = True
+USE_DUMMY = os.getenv("USE_DUMMY_SENSORS", "false").lower() == "true"
+# USE_DUMMY = True
 
 if USE_DUMMY:
     from sensors.dummy.dummy_flow_sensor import FlowSensor
     from sensors.dummy.dummy_pressure_sensor import PressureSensor
-    from sensors.dummy.dummy_accelerometer import Accelerometer
+   # from sensors.dummy.dummy_accelerometer import Accelerometer
 else:
     from sensors.real.flow_sensor import FlowSensor
     from sensors.real.pressure_sensor import PressureSensor
-    from sensors.real.accelerometer import Accelerometer
+    #from sensors.real.accelerometer import Accelerometer
 
 
 def main():
@@ -41,7 +41,13 @@ def main():
                     try:
                         data = sensor.read()
                         sensor_name = sensor.__class__.__name__
-                        print(f"{sensor_name} data: {data}")
+                        if sensor_name == "FlowSensor":
+                            if isinstance(data,dict) and "flow_µl_min" in data: 
+                                print(f"{sensor_name} | Flow: {data['flow_µl_min']} ml/min | Temp: {data['temperature_c']}C")
+                            else:
+                                print("garbage <3")
+                        else:
+                            print(f"{sensor_name} data: {data}")
                     except Exception as e:
                         print(f"error reading {sensor.__class__.__name__}: {e}")
 
