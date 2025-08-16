@@ -210,7 +210,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
     def _update_sensors(self, flow: float, pressure: float, temp: float):
         color = "red" if pressure > self.pressure_threshold else "white"
         self.pressure_label.config(
-            text=f"Pressure: {pressure} Psi", fg=color)
+            text=f"Pressure: {pressure} psi", fg=color)
         self.flow_label.config(text=f"Flow Rate: {flow} mL/min")
         self.temp_label.config(text=f"Temperature: {temp} °C")
 
