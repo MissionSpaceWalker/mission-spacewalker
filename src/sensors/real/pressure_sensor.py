@@ -59,9 +59,16 @@ class PressureSensor(BaseSensor):
         if not self._measuring:
             raise RuntimeError("sensor not measuring - call start() first")
 
+        pressure_hpa = round(self._sensor.pressure, 2)
+        temperature_c = round(self._sensor.temperature, 2)
+    
+        # convert hPa → psi
+        pressure_psi = round(pressure_hpa * 0.0145038, 2)
+
+
         return {
-            "pressure_hpa": round(self._sensor.pressure, 2),
-            "temperature_c": round(self._sensor.temperature, 2),
+            "pressure_psi": pressure_psi,
+            "temperature_c": temperature_c,
         }
 
     def __enter__(self):

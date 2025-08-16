@@ -149,7 +149,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
                               else:
                                 print("garbage <3")
                             if sensor_name == "PressureSensor":
-                              pressure_value = data['pressure_hpa']
+                              pressure_value = data['pressure_psi']
                               temperature_value = data['temperature_c']
                               
                         except Exception as e:
@@ -210,9 +210,9 @@ class MissionSpacewalkerDashboard(tk.Tk):
     def _update_sensors(self, flow: float, pressure: float, temp: float):
         color = "red" if pressure > self.pressure_threshold else "white"
         self.pressure_label.config(
-            text=f"Pressure: {pressure:.2f} kPa", fg=color)
-        self.flow_label.config(text=f"Flow Rate: {flow:.2f} mL/min")
-        self.temp_label.config(text=f"Temperature: {temp:.2f} °C")
+            text=f"Pressure: {pressure} Psi", fg=color)
+        self.flow_label.config(text=f"Flow Rate: {flow} mL/min")
+        self.temp_label.config(text=f"Temperature: {temp} °C")
 
     # store the new flow value and trigger a redraw
     def _update_graph(self, flow: float):
