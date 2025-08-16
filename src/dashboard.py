@@ -5,7 +5,7 @@ import time
 from contextlib import ExitStack
 import threading
 
-USE_DUMMY = True
+USE_DUMMY = False
 
 if USE_DUMMY:
     from sensors.dummy.dummy_flow_sensor import FlowSensor
