@@ -26,7 +26,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
         self.sensor_classes = [
             FlowSensor,
-            # PressureSensor,
+            PressureSensor,
             # Accelerometer,
         ]
 
@@ -135,18 +135,23 @@ class MissionSpacewalkerDashboard(tk.Tk):
                 print("all sensors started successfully.")
 
                 while True:
+                    flow_value = None
+                    pressure_value = None
+                    temperature_value = None
                     for sensor in sensors:
                         try:
                             data = sensor.read()
                             sensor_name = sensor.__class__.__name__
-                            # ! uncomment when use real sensors
-                            # if sensor_name == "FlowSensor":
-                            #     if isinstance(data,dict) and "flow_µl_min" in data:
-                            #         print(f"{sensor_name} | Flow: {data['flow_µl_min']} ml/min | Temp: {data['temperature_c']}C")
-                            #     else:
-                            #         print("garbage <3")
-                            # else:
-                            print(f"{sensor_name} data: {data}")
+
+                            if sensor_name == "FlowSensor":
+                              if isinstance(data,dict) and "flow_µl_min" in data:
+                                flow_value = data['flow_µl_min']
+                              else:
+                                print("garbage <3")
+                            if sensor_name == "PressureSensor":
+                              pressure_value = data['pressure_hpa']
+                              temperature_value = data['temperature_c']
+                              
                         except Exception as e:
                             print(
                                 f"error reading {sensor.__class__.__name__}: {e}")
@@ -154,9 +159,9 @@ class MissionSpacewalkerDashboard(tk.Tk):
                     # ! fake sensor data here
                     # TODO: find a way to read real data from above and shove it into the labels
                     self._update_sensors(
-                        flow=random.uniform(0.5, 1.5),
-                        pressure=random.uniform(90, 115),
-                        temp=random.uniform(20, 25)
+                        flow=flow_value,
+                        pressure=pressure_value,
+                        temp=temperature_value,
                     )
                     time.sleep(0.5)  # read every 0.5 seconds
 
