@@ -4,6 +4,7 @@ import random
 import time
 from contextlib import ExitStack
 import threading
+from stepper_motor import StepperMotor
 
 USE_DUMMY = False
 
@@ -39,7 +40,11 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.max_points = 100   # max number of data points to keep
         self.update_interval_ms = 1000  # sensor update frequency in ms
 
+        # Initialize motor
+        self.motor = StepperMotor()
+        
         self._create_widgets()
+        
 
     # build the ui layout
     def _create_widgets(self):
@@ -175,19 +180,26 @@ class MissionSpacewalkerDashboard(tk.Tk):
     def start_system(self):
         if self.running:
             return
+        
+        print("System started → opening valve")
+        threading.Thread(target=lambda: self.motor.fixed_steps(1500), daemon=True).start()
+        self.running = True
 
         # start thread in background to avoid blocking the UI
         thread = threading.Thread(target=self._run_system)
         thread.daemon = True  # allow exit without waiting for this thread
         thread.start()
 
-        self.running = True
         # self._tick()
 
     # stop the system loop
     def stop_system(self):
         self.running = False
         print("system emergency stop triggered")
+
+        print("Emergency stop → closing valve") 
+        threading.Thread(target=lambda: self.motor.fixed_steps(-1500), daemon=True).start()
+        self.running = False
 
     # called every update interval to refresh values
     def _tick(self):
@@ -290,5 +302,4 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
 if __name__ == "__main__":
     app = MissionSpacewalkerDashboard()
-    app.start_system()
     app.mainloop()
