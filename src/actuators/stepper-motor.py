@@ -79,3 +79,6 @@ class StepperMotor:
 
     def move_steps(self, n_steps):
         self.goto(self.actual + n_steps * self.COUNTS_PER_FULL_STEP)
+
+    def stop(self):
+        self.pi.write(self.STEP_PIN, 0)
