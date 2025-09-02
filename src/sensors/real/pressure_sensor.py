@@ -1,6 +1,6 @@
 # lps22_sensor.py
 
-from base_sensor import BaseSensor, SensorType
+from sensors.base_sensor import BaseSensor, SensorType
 import board
 import adafruit_lps2x
 

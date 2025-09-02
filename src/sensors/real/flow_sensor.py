@@ -10,7 +10,7 @@ from sensirion_i2c_driver import CrcCalculator, I2cConnection, LinuxI2cTransceiv
 from sensirion_i2c_sf06_lf.commands import InvFlowScaleFactors
 from sensirion_i2c_sf06_lf.device import Sf06LfDevice
 
-from base_sensor import BaseSensor, SensorType
+from sensors.base_sensor import BaseSensor, SensorType
 
 
 class FlowSensor(BaseSensor):

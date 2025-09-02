@@ -4,7 +4,7 @@ import random
 import time
 from contextlib import ExitStack
 import threading
-from stepper_motor import StepperMotor
+from actuators.stepper_motor import StepperMotor
 
 USE_DUMMY = False
 
@@ -31,6 +31,22 @@ class MissionSpacewalkerDashboard(tk.Tk):
             # Accelerometer,
         ]
 
+        # Initialize motor
+        try:
+            import pigpio
+            self.pi = pigpio.pi()
+            if not self.pi.connected:
+                raise RuntimeError("pigpio not connected")
+            self.motor = StepperMotor(self.pi)
+        except Exception as e:
+            print(f"Stepper motor init failed: {e}. Using dummy motor.")
+
+            class DummyMotor:
+                def fixed_steps(self, steps):
+                    print(f"[Dummy] Would move motor {steps} steps")
+
+            self.motor = DummyMotor()
+
         # basic system state
         self.running = False
         self.pressure_threshold = 105.0
@@ -40,9 +56,6 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.max_points = 100   # max number of data points to keep
         self.update_interval_ms = 1000  # sensor update frequency in ms
 
-        # Initialize motor
-        self.motor = StepperMotor()
-        
         self._create_widgets()
         
 
@@ -149,10 +162,10 @@ class MissionSpacewalkerDashboard(tk.Tk):
                             sensor_name = sensor.__class__.__name__
 
                             if sensor_name == "FlowSensor":
-                              if isinstance(data,dict) and "flow_µl_min" in data:
-                                flow_value = data['flow_µl_min']
+                              if isinstance(data,dict) and 'flow_ml_min' in data:
+                                flow_value = data['flow_ml_min']
                               else:
-                                print("garbage <3")
+                                print("FlowSensor raw:", data)
                             if sensor_name == "PressureSensor":
                               pressure_value = data['pressure_psi']
                               temperature_value = data['temperature_c']
