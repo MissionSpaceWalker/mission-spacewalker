@@ -5,6 +5,9 @@ import time
 from contextlib import ExitStack
 import threading
 from actuators.stepper_motor import StepperMotor
+from PIL import Image, ImageTk
+from picamera2 import Picamera2
+
 
 USE_DUMMY = False
 
@@ -57,6 +60,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.update_interval_ms = 1000  # sensor update frequency in ms
 
         self._create_widgets()
+        self._init_cameras()
         
 
     # build the ui layout
@@ -123,6 +127,34 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.temp_label = tk.Label(sensor_frame, text="Temperature: --- °C",
                                    fg="white", bg="#1c1c1c", font=("Arial", 18, "bold"))
         self.temp_label.pack(anchor="w", pady=10)
+
+    def _init_cameras(self):
+        # Initialize PiCamera2
+        self.picam2 = Picamera2()
+        self.picam2.configure(self.picam2.create_preview_configuration())
+        self.picam2.start()
+
+        # Start updating the feed
+        self.update_camera_feed()
+
+    def update_camera_feed(self):
+        # Capture a frame
+        frame = self.picam2.capture_array()
+
+        # Convert to Image and resize to fit your canvas
+        img = Image.fromarray(frame).resize((560, 420))
+        imgtk = ImageTk.PhotoImage(image=img)
+
+        # Update Camera 1 feed
+        self.cam1_canvas.imgtk = imgtk
+        self.cam1_canvas.create_image(0, 0, anchor="nw", image=imgtk)
+
+        # If you only have ONE camera, we’ll just mirror the same feed in cam2
+        self.cam2_canvas.imgtk = imgtk
+        self.cam2_canvas.create_image(0, 0, anchor="nw", image=imgtk)
+
+        # Refresh every 30 ms (~30 FPS)
+        self.after(30, self.update_camera_feed)
 
     # draw a placeholder box with a message for the camera feeds
     def _draw_camera_placeholder(self, canvas: tk.Canvas, msg: str):
@@ -307,10 +339,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
     # temporary: updates camera placeholders so it looks alive
     def _update_cameras_placeholder(self):
-        for canvas in (self.cam1_canvas, self.cam2_canvas):
-            self._draw_camera_placeholder(canvas, "no feed")
-            r = 8  # Slightly larger indicator
-            canvas.create_oval(8, 8, 8 + r, 8 + r, fill="#2ecc71", outline="")
+        pass
 
 
 if __name__ == "__main__":
