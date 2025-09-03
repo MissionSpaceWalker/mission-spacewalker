@@ -103,14 +103,27 @@ class MissionSpacewalkerDashboard(tk.Tk):
             font=("Arial", 14), width=15, height=2)
         self.start_button.pack(pady=(0, 10))
 
+        self.emergency_stop_button = tk.Button( 
+          controls_frame, 
+          text="STOP", 
+          bg="white", 
+          fg="black", 
+          font=("Arial", 14, "bold"), 
+          width=20, 
+          height=2, 
+          command=self.stop_system
+        )
+
         self.stop_button = tk.Button(
             controls_frame, text="EMERGENCY STOP", bg="white",
             fg="red",
             font=("Arial", 14, "bold"),
             width=20, height=2,
-            command=self.stop_system
+            command=self.emergency_stop_system
         )
-        self.stop_button.pack()
+
+        self.stop_button.pack(pady=(0, 15))
+        self.emergency_stop_button.pack(pady=(0, 15))
 
         # sensor readings section - larger fonts and spacing
         sensor_frame = tk.Frame(bottom_frame, bg="#1c1c1c")
@@ -131,7 +144,9 @@ class MissionSpacewalkerDashboard(tk.Tk):
     def _init_cameras(self):
         # Initialize PiCamera2
         self.picam2 = Picamera2()
-        self.picam2.configure(self.picam2.create_preview_configuration())
+        self.picam2.configure(
+            self.picam2.create_video_configuration(main={"size": (560, 420)})
+        )
         self.picam2.start()
 
         # Start updating the feed
@@ -141,8 +156,8 @@ class MissionSpacewalkerDashboard(tk.Tk):
         # Capture a frame
         frame = self.picam2.capture_array()
 
-        # Convert to Image and resize to fit your canvas
-        img = Image.fromarray(frame).resize((560, 420))
+        # Convert to Image
+        img = Image.fromarray(frame)
         imgtk = ImageTk.PhotoImage(image=img)
 
         # Update Camera 1 feed
@@ -153,8 +168,8 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.cam2_canvas.imgtk = imgtk
         self.cam2_canvas.create_image(0, 0, anchor="nw", image=imgtk)
 
-        # Refresh every 30 ms (~30 FPS)
-        self.after(30, self.update_camera_feed)
+        # Refresh every 70 ms (~70 FPS)
+        self.after(70, self.update_camera_feed)
 
     # draw a placeholder box with a message for the camera feeds
     def _draw_camera_placeholder(self, canvas: tk.Canvas, msg: str):
@@ -184,7 +199,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
                 print("all sensors started successfully.")
 
-                while True:
+                while self.running:
                     flow_value = None
                     pressure_value = None
                     temperature_value = None
@@ -223,28 +238,36 @@ class MissionSpacewalkerDashboard(tk.Tk):
     # start reading/updating the sensors
 
     def start_system(self):
-        if self.running:
-            return
-        
-        print("System started → opening valve")
-        threading.Thread(target=lambda: self.motor.fixed_steps(1500), daemon=True).start()
-        self.running = True
+      if self.running:
+        return
 
-        # start thread in background to avoid blocking the UI
-        thread = threading.Thread(target=self._run_system)
-        thread.daemon = True  # allow exit without waiting for this thread
-        thread.start()
+      print("System started → opening valve")
+      self.running = True
 
-        # self._tick()
+      # run motor movement in a thread
+      threading.Thread(target=lambda: self.motor.fixed_steps(1500), daemon=True).start()
+
+      # start sensors in another thread
+      thread = threading.Thread(target=self._run_system, daemon=True)
+      thread.start()
+
 
     # stop the system loop
-    def stop_system(self):
-        self.running = False
-        print("system emergency stop triggered")
+    def emergency_stop_system(self):
+      print("system emergency stop triggered")
 
-        print("Emergency stop → closing valve") 
-        threading.Thread(target=lambda: self.motor.fixed_steps(-1500), daemon=True).start()
-        self.running = False
+      print("Emergency stop → closing valve") 
+      threading.Thread(target=lambda: self.motor.fixed_steps(-1500), daemon=True).start() 
+
+    def stop_system(self):
+      print("system emergency stop triggered")
+      self.running = False
+
+      # tell the motor to stop immediately
+      if hasattr(self.motor, "stop"):
+          self.motor.stop()
+
+      print("stop → closing valve")
 
     # called every update interval to refresh values
     def _tick(self):
