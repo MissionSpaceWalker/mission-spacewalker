@@ -18,6 +18,8 @@ if USE_DUMMY:
 else:
     from sensors.real.flow_sensor import FlowSensor
     from sensors.real.pressure_sensor import PressureSensor
+    from sensors.real.solenoid_valve import SolenoidValve
+
     # from sensors.real.accelerometer import Accelerometer
 
 
@@ -50,6 +52,10 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
             self.motor = DummyMotor()
 
+        try:
+            self.valve = SolenoidValve(pin=21)
+        except Exception as e:
+            print("nope")
         # basic system state
         self.running = False
         self.pressure_threshold = 105.0
@@ -244,6 +250,9 @@ class MissionSpacewalkerDashboard(tk.Tk):
       print("System started → opening valve")
       self.running = True
 
+      self.valve.open()
+      self.valve.auto_close(delay=10)
+
       # run motor movement in a thread
       threading.Thread(target=lambda: self.motor.fixed_steps(1500), daemon=True).start()
 
@@ -255,13 +264,15 @@ class MissionSpacewalkerDashboard(tk.Tk):
     # stop the system loop
     def emergency_stop_system(self):
       print("system emergency stop triggered")
-
+      self.valve.close()
       print("Emergency stop → closing valve") 
       threading.Thread(target=lambda: self.motor.fixed_steps(-1500), daemon=True).start() 
 
     def stop_system(self):
       print("system emergency stop triggered")
       self.running = False
+
+      self.valve.close()
 
       # tell the motor to stop immediately
       if hasattr(self.motor, "stop"):

@@ -1,37 +1,26 @@
 import RPi.GPIO as GPIO
-from time import sleep
+import threading
+#
+class SolenoidValve:
+    def __init__(self, pin=21):
+        self.pin = pin
+        GPIO.setwarnings(False)
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin, GPIO.OUT)
+        GPIO.output(self.pin, 1)  # OFF initially
 
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
+    def open(self):
+        print("Solenoid valve OPEN")
+        GPIO.output(self.pin, 0)  # LOW = ON for many relay modules
 
-print("=== Relay Controller ===")
-print("Type 'on' to activate the relay.")
-print("Type 'off' to deactivate the relay.")
-print("Type 'exit' to quit.\n")
+    def close(self):
+        print("Solenoid valve CLOSED")
+        GPIO.output(self.pin, 1)  # HIGH = OFF
 
-try:
-    while True:
-        command = input("Enter command (on/off/exit): ").strip().lower()
-        
-        if command == "on":
-            GPIO.output(18, 0)  # LOW = ON for many relay modules
-            print("Relay ON")
-        elif command == "off":
-            GPIO.output(18, 1)  # HIGH = OFF
-            print("Relay OFF")
-        elif command == "exit":
-            print("Exiting...")
-            break
-        else:
-            print("Invalid command. Please enter 'on', 'off', or 'exit'.")
-except KeyboardInterrupt:
-    print("\nInterrupted by user.")
-
-finally:
-    GPIO.output(18, 1)  # Turn relay off for safety
-    GPIO.cleanup()
-    print("GPIO cleaned up.")
+    def auto_close(self, delay=80):
+        """Automatically close after `delay` seconds"""
+        timer = threading.Timer(delay, self.close)
+        timer.start()
 
 '''
 #Import all neccessary features to code.
