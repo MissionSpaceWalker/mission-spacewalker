@@ -58,7 +58,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
             print("nope")
         # basic system state
         self.running = False
-        self.pressure_threshold = 22.5
+        self.pressure_threshold = 105.0
 
         # store recent flow values for graph
         self.flow_data = []
@@ -148,7 +148,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.temp_label.pack(anchor="w", pady=10)
 
     def _init_cameras(self):
-       # Initialize PiCamera2 in preview mode (lighter, lower latency)
+        # Initialize PiCamera2
         self.picam2 = Picamera2()
         self.picam2.configure(
             self.picam2.create_preview_configuration(
@@ -157,26 +157,27 @@ class MissionSpacewalkerDashboard(tk.Tk):
             )
         )
         self.picam2.start()
-
-        # Tell camera to call update_camera_feed when a new frame is ready
         self.picam2.post_callback = self.update_camera_feed
 
-    def update_camera_feed(self, request):
-        # Get preview frame directly from the request
-        frame = request.make_array("main")
 
-        # Convert to ImageTk
+    def update_camera_feed(self):
+        # Capture a frame
+        frame = self.picam2.makemakbsggd   _array("main")
+
+        # Convert to Image
         img = Image.fromarray(frame)
-    
         imgtk = ImageTk.PhotoImage(image=img)
 
         # Update Camera 1 feed
         self.cam1_canvas.imgtk = imgtk
         self.cam1_canvas.create_image(0, 0, anchor="nw", image=imgtk)
 
-        # Mirror the same feed in Camera 2 for now
+        # If you only have ONE camera, we’ll just mirror the same feed in cam2
         self.cam2_canvas.imgtk = imgtk
         self.cam2_canvas.create_image(0, 0, anchor="nw", image=imgtk)
+
+        # Refresh every 70 ms (~70 FPS)
+        self.after(70, self.update_camera_feed)
 
     # draw a placeholder box with a message for the camera feeds
     def _draw_camera_placeholder(self, canvas: tk.Canvas, msg: str):
@@ -255,7 +256,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
       self.valve.auto_close(delay=10)
 
       # run motor movement in a thread
-      threading.Thread(target=lambda: self.motor.fixed_steps(890), daemon=True).start()
+      threading.Thread(target=lambda: self.motor.fixed_steps(1500), daemon=True).start()
 
       # start sensors in another thread
       thread = threading.Thread(target=self._run_system, daemon=True)
@@ -267,7 +268,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
       print("system emergency stop triggered")
       self.valve.close()
       print("Emergency stop → closing valve") 
-      threading.Thread(target=lambda: self.motor.fixed_steps(-890), daemon=True).start() 
+      threading.Thread(target=lambda: self.motor.fixed_steps(-1500), daemon=True).start() 
 
     def stop_system(self):
       print("system emergency stop triggered")
@@ -300,18 +301,12 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
     # update the label text/colors for sensor readings
     def _update_sensors(self, flow: float, pressure: float, temp: float):
-        if pressure is None:
-            return  # no data yet
-    
         color = "red" if pressure > self.pressure_threshold else "white"
         self.pressure_label.config(
             text=f"Pressure: {pressure} psi", fg=color)
         self.flow_label.config(text=f"Flow Rate: {flow} mL/min")
         self.temp_label.config(text=f"Temperature: {temp} °C")
-       
-        if pressure > self.pressure_threshold:
-            print(f"!!! Emergency shutdown: pressure exceeded {self.pressure_threshold} psi")
-            self.emergency_stop_system()
+
     # store the new flow value and trigger a redraw
     def _update_graph(self, flow: float):
         self.flow_data.append(flow)

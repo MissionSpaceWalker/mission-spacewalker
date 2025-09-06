@@ -3,7 +3,7 @@ import threading
 import pigpio
 
 class StepperMotor:
-    def __init__(self, pi, step_pin=18, dir_pin=20, enc_a=17, enc_b=23):
+    def __init__(self, pi, step_pin=18, dir_pin=25, enc_a=17, enc_b=23):
         self.pi = pi
         self.STEP_PIN = step_pin
         self.DIR_PIN  = dir_pin
