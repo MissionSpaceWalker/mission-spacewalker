@@ -79,3 +79,5 @@ class PressureSensor(BaseSensor):
     def __exit__(self, exc_type, exc_val, exc_tb):
         """context manager exit"""
         self.disconnect()
+
+

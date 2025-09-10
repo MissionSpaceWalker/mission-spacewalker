@@ -12,11 +12,11 @@ from picamera2 import Picamera2
 USE_DUMMY = False
 
 if USE_DUMMY:
-    from sensors.dummy.dummy_flow_sensor import FlowSensor
+#    from sensors.dummy.dummy_flow_sensor import FlowSensor
     from sensors.dummy.dummy_pressure_sensor import PressureSensor
    # from sensors.dummy.dummy_accelerometer import Accelerometer
 else:
-    from sensors.real.flow_sensor import FlowSensor
+ #   from sensors.real.flow_sensor import FlowSensor
     from sensors.real.pressure_sensor import PressureSensor
     from sensors.real.solenoid_valve import SolenoidValve
 
@@ -31,7 +31,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.mode = mode
 
         self.sensor_classes = [
-            FlowSensor,
+  #          FlowSensor,
             PressureSensor,
             # Accelerometer,
         ]
@@ -146,6 +146,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.temp_label = tk.Label(sensor_frame, text="Temperature: --- °C",
                                    fg="white", bg="#1c1c1c", font=("Arial", 18, "bold"))
         self.temp_label.pack(anchor="w", pady=10)
+        self._create_sequence_controls(controls_frame)
 
     def _init_cameras(self):
        # Initialize PiCamera2 in preview mode (lighter, lower latency)
@@ -215,11 +216,11 @@ class MissionSpacewalkerDashboard(tk.Tk):
                             data = sensor.read()
                             sensor_name = sensor.__class__.__name__
 
-                            if sensor_name == "FlowSensor":
-                              if isinstance(data,dict) and 'flow_ml_min' in data:
-                                flow_value = data['flow_ml_min']
-                              else:
-                                print("FlowSensor raw:", data)
+                    #        if sensor_name == "FlowSensor":
+                   #           if isinstance(data,dict) and 'flow_ml_min' in data:
+                  #              flow_value = data['flow_ml_min']
+                 #             else:
+                #                print("FlowSensor raw:", data)
                             if sensor_name == "PressureSensor":
                               pressure_value = data['pressure_psi']
                               temperature_value = data['temperature_c']
@@ -244,23 +245,35 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
     # start reading/updating the sensors
 
-    def start_system(self):
-      if self.running:
-        return
+#    def start_system(self):
+ #     if self.running:
+  #      return
 
-      print("System started → opening valve")
-      self.running = True
+   #   print("System started → opening valve")
+    #  self.running = True
 
-      self.valve.open()
-      self.valve.auto_close(delay=10)
+     # self.valve.open()
+     # self.valve.auto_close(delay=10)
 
       # run motor movement in a thread
-      threading.Thread(target=lambda: self.motor.fixed_steps(890), daemon=True).start()
+     # threading.Thread(target=lambda: self.motor.fixed_steps(890), daemon=True).start()
 
       # start sensors in another thread
-      thread = threading.Thread(target=self._run_system, daemon=True)
-      thread.start()
+     # thread = threading.Thread(target=self._run_system, daemon=True)
+     # thread.start()
+    def _create_sequence_controls(self, parent):
+        """Add buttons to trigger the 4 sequences manually."""
+        sequence_frame = tk.LabelFrame(parent, text="Sequences", padx=10, pady=10)
+        sequence_frame.pack(pady=(10, 20))
 
+        tk.Button(sequence_frame, text="Sequence 1 (Init + Motor)",
+                  command=lambda: self.run_sequence(1)).pack(fill="x", pady=2)
+        tk.Button(sequence_frame, text="Sequence 2 (Sensors only)",
+                  command=lambda: self.run_sequence(2)).pack(fill="x", pady=2)
+        tk.Button(sequence_frame, text="Sequence 3 (Continue + Motor)",
+                  command=lambda: self.run_sequence(3)).pack(fill="x", pady=2)
+        tk.Button(sequence_frame, text="Sequence 4 (Sensors + Valve)",
+                  command=lambda: self.run_sequence(4)).pack(fill="x", pady=2)
 
     # stop the system loop
     def emergency_stop_system(self):
@@ -280,6 +293,24 @@ class MissionSpacewalkerDashboard(tk.Tk):
           self.motor.stop()
 
       print("stop → closing valve")
+    def run_sequence(self, seq_number):
+        """Run the chosen sequence based on your experiment plan."""
+        print(f"Running Sequence {seq_number}...")
+
+    # Ensure sensors are running
+        if not self.running:
+            self.running = True
+            threading.Thread(target=self._run_system, daemon=True).start()
+            print("Sensors started...")
+
+    # Open valve immediately
+        self.valve.open()
+        threading.Timer(60, self.valve.close).start()  # auto-close valve after 60s
+
+    # Motor timing (only for sequences 1 & 3)
+        if seq_number in (1, 3):
+            threading.Timer(100, lambda: self.motor.fixed_steps(self.motor.VALVE_STEPS)).start()
+            threading.Timer(110, lambda: self.motor.fixed_steps(-self.motor.VALVE_STEPS)).start()
 
     # called every update interval to refresh values
     def _tick(self):
