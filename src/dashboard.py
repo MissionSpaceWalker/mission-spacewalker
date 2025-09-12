@@ -53,7 +53,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
             self.motor = DummyMotor()
 
         try:
-            self.valve = SolenoidValve(pin=21)
+            self.valve = SolenoidValve(pin=6)
         except Exception as e:
             print("nope")
         # basic system state
