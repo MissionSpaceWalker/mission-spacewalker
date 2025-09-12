@@ -10,7 +10,7 @@ class StepperMotor:
         self.ENC_A    = enc_a
         self.ENC_B    = enc_b
 
-        self.PULSE_US = 1500
+        self.PULSE_US = 1300
         self.COUNTS_PER_FULL_STEP = 41
         self.VALVE_STEPS = 130
         self.TEST_CLICKS = 164
