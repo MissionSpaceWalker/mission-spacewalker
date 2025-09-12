@@ -7,7 +7,7 @@ import threading
 from actuators.stepper_motor import StepperMotor
 from PIL import Image, ImageTk
 from picamera2 import Picamera2
-
+#from sensors.real.pressure_sensor import PressureSensor
 
 USE_DUMMY = False
 
@@ -32,7 +32,9 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
         self.sensor_classes = [
   #          FlowSensor,
-            PressureSensor,
+            lambda: PressureSensor(address=0x5C),
+            lambda: PressureSensor(address=0x5D),
+           # PressureSensor,
             # Accelerometer,
         ]
 
@@ -104,11 +106,18 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self._draw_camera_placeholder(self.cam2_canvas, "no feed")
 
         # start/stop controls in top right corner
+    #    self.start_button = tk.Button(
+     #       controls_frame, text="START", command=self.run_start_system,
+      #      font=("Arial", 14), width=15, height=2)
+       # self.start_button.pack(pady=(0, 10))
         self.start_button = tk.Button(
-            controls_frame, text="START", command=self.start_system,
-            font=("Arial", 14), width=15, height=2)
-        self.start_button.pack(pady=(0, 10))
-
+            controls_frame,
+            text="START",
+            command=lambda: self.run_sequence(1),  # <-- run a sequence instead
+            font=("Arial", 14),
+            width=15,
+            height=2
+        )
         self.emergency_stop_button = tk.Button( 
           controls_frame, 
           text="STOP", 
@@ -153,7 +162,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
         self.picam2 = Picamera2()
         self.picam2.configure(
             self.picam2.create_preview_configuration(
-                main={"size": (320, 240), "format": "RGB888"},  # smaller & faster
+                main={"size": (560, 420), "format": "RGB888"},  # smaller & faster
                 controls={"FrameDurationLimits": (33333, 33333)}  # ~30 fps
             )
         )
@@ -191,8 +200,61 @@ class MissionSpacewalkerDashboard(tk.Tk):
         canvas.create_text(w//2, h//2, text=msg,
                            # Larger font
                            fill="#2ecc71", font=("Arial", 14, "bold"))
-
     def _run_system(self):
+        try:
+            print("starting all sensors...")
+
+        # create sensor instances once
+            sensors = []
+            for sensor_class in self.sensor_classes:
+                sensor = sensor_class()  # create sensor
+                sensor.connect()
+                sensor.start()
+                sensors.append(sensor)
+               
+            print("all sensors started successfully.")
+
+            while self.running:
+                flow_value = None
+                pressure_values = []  # store multiple sensor pressures
+                temperature_values = []
+
+                for sensor in sensors:
+                    try:
+                        data = sensor.read()
+                        sensor_name = sensor.__class__.__name__
+
+                        if sensor_name == "PressureSensor":
+                            pressure_values.append(data["pressure_psi"])
+                            temperature_values.append(data["temperature_c"])
+                    # elif sensor_name == "FlowSensor":
+                    #     flow_value = data["flow_ml_min"]
+
+                    except Exception as e:
+                        print(f"error reading {sensor.__class__.__name__}: {e}")
+
+#             Combine or average readings if multiple sensors
+                if pressure_values:
+                    avg_pressure = round(sum(pressure_values) / len(pressure_values), 2)
+                    avg_temp = round(sum(temperature_values) / len(temperature_values), 2)
+                else:
+                    avg_pressure = None
+                    avg_temp = None
+
+                self._update_sensors(
+                    flow=flow_value,
+                    pressure=avg_pressure,
+                    temp=avg_temp,
+                )
+
+                time.sleep(0.5)  # read every 0.5 seconds
+
+        except KeyboardInterrupt:
+            print("stopping all sensors...")
+            # add cleanup if necessary
+            print("all sensors stopped.")
+
+        """    def _run_system(self):
         try:
             print("starting all sensors...")
 
@@ -221,10 +283,12 @@ class MissionSpacewalkerDashboard(tk.Tk):
                   #              flow_value = data['flow_ml_min']
                  #             else:
                 #                print("FlowSensor raw:", data)
-                            if sensor_name == "PressureSensor":
-                              pressure_value = data['pressure_psi']
-                              temperature_value = data['temperature_c']
-                              
+                            for sensor_class in self.sensor_classes:
+                                sensor = stack.enter_context(sensor_class())
+                                sensor.start()
+                                sensors.append(sensor)
+#333333333333333333333333333333333333333333333333333333333333333333333333333333333
+                                             
                         except Exception as e:
                             print(
                                 f"error reading {sensor.__class__.__name__}: {e}")
@@ -260,7 +324,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
       # start sensors in another thread
      # thread = threading.Thread(target=self._run_system, daemon=True)
-     # thread.start()
+     # thread.start()"""
     def _create_sequence_controls(self, parent):
         """Add buttons to trigger the 4 sequences manually."""
         sequence_frame = tk.LabelFrame(parent, text="Sequences", padx=10, pady=10)
@@ -280,7 +344,7 @@ class MissionSpacewalkerDashboard(tk.Tk):
       print("system emergency stop triggered")
       self.valve.close()
       print("Emergency stop → closing valve") 
-      threading.Thread(target=lambda: self.motor.fixed_steps(-890), daemon=True).start() 
+      threading.Thread(target=lambda: self.motor.fixed_steps(-1000), daemon=True).start() 
 
     def stop_system(self):
       print("system emergency stop triggered")
@@ -309,8 +373,8 @@ class MissionSpacewalkerDashboard(tk.Tk):
 
     # Motor timing (only for sequences 1 & 3)
         if seq_number in (1, 3):
-            threading.Timer(100, lambda: self.motor.fixed_steps(self.motor.VALVE_STEPS)).start()
-            threading.Timer(110, lambda: self.motor.fixed_steps(-self.motor.VALVE_STEPS)).start()
+            threading.Timer(100, lambda: self.motor.fixed_steps(1000)).start()
+            threading.Timer(110, lambda: self.motor.fixed_steps(-1000)).start()
 
     # called every update interval to refresh values
     def _tick(self):
