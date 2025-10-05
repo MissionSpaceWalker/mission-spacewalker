@@ -102,7 +102,7 @@ class FlowSensor(BaseSensor):
             except Exception as e:
                 logging.warning(f"error stopping measurement: {e}")
 
-    def read(self):
+    def read(self): # edit this function to add data to database
         """read flow data from sensor"""
         if not self._connected or not self._device:
             raise RuntimeError("sensor not connected")

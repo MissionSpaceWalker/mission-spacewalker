@@ -1,4 +1,4 @@
-from sensors.real.lps22_sensor import PressureSensor
+from sensors.real.pressure_sensor import PressureSensor
 import time
 
 # create sensor instance
