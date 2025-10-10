@@ -7,7 +7,7 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 
 # Initializing Local Database
-conn = sqlite3.connect("sensor_cache.db")
+conn = sqlite3.connect("data/sensor_cache.db")
 cursor = conn.cursor()
 cursor.execute("""
                CREATE TABLE IF NOT EXISTS sensor_cache (
@@ -22,7 +22,7 @@ cursor.execute("""
 conn.commit()
 
 # Initializing Firestore
-cred = credentials.Certificate("/home/aaliyahw/workspace/MSW/can-rgx-sensors-firebase-adminsdk-fbsvc-a23fea66f9.json") # Temporary
+cred = credentials.Certificate("/home/mswua/mission-spacewalker/key/can-rgx-sensors-firebase-adminsdk-fbsvc-a23fea66f9.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 

@@ -35,6 +35,8 @@ logs/
 *.csv
 *.hdf5
 
+key/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
